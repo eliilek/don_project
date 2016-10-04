@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load static %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var stimuli = JSON.parse('{{ stimuli_to_use }}');
+      var index = 0;
+      var response_index = 1;
+      var trial_start_time;
+      var response_start_time;
+      var responses;
+    </script>
+    {% if trial_type == "divergent" %}
+    <script src="{% static 'experiments/divergent.js' %}" type="text/javascript"></script>
+    {% elif trial_type == "convergent" %}
+    <script src="{% static 'experiments/convergent.js' %}" type="text/javascript"></script>
+    {% elif trial_type == "recombination" %}
+    <script src="{% static 'experiments/recombination.js' %}" type="text/javascript"></script>
+    {% else %}
+    <script src="{% static 'experiments/block_design.js' %}" type="text/javascript"></script>
+    {% endif %}
+  </head>
+  <body>
+    <div class='top-header'>
+      <h2>Divergent Tasks</h2>
+    </div>
+    <div class='stimuli'></div>
+    <div class='instructions_div'>
+      <p>
+        Instructions:
+      </p><br /><br />
+      <p class='instructions'>
+      </p><br />
+      <button type="button">Start!</button>
+    </div>
+    <div class='responses'></div>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+  </head>
+  <body>
+    <div>
+      <h3>Subject ID: {{ sub.id }}</h3>
+    </div><br /><br />
+    {% if response_list %}
+    <div>
+      <table>
+        <tr>
+          <th>Responses:</th>
+        </tr><tr>
+          <th>TODO second row</th>
+        </tr>
+      </table>
+    </div><br /><br />
+    {% endif %}
+    <form action="{% url 'trial' %}">
+      <input type="submit" value="Begin Trial" />
+    </form>
+  </body>
+</html>
