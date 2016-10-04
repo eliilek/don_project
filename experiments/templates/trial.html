@@ -10,9 +10,26 @@
       var trial_start_time;
       var response_start_time;
       var responses;
+
+      function post(path, parameters){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", path, true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+        complete = true;
+        xhr.send(JSON.stringify(parameters));
+      }
+
+      function end_trial(){
+        post(report_url, responses);
+        alert("You're all done with this trial! Press ok to proceed.");
+        $(location).attr('href', "{% url 'trial' %}");
+      }
     </script>
     {% if trial_type == "divergent" %}
-    <script src="{% static 'experiments/divergent.js' %}" type="text/javascript"></script>
+    <script src="{% static 'experiments/divergent.js' %}" type="text/javascript">
+      var report_url = "{% url 'report_divergent' %}"
+    </script>
     {% elif trial_type == "convergent" %}
     <script src="{% static 'experiments/convergent.js' %}" type="text/javascript"></script>
     {% elif trial_type == "recombination" %}

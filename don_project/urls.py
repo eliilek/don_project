@@ -23,4 +23,8 @@ urlpatterns = [
     url(r'^subject', experiments.views.subject, name="subject"),
     url(r'^session', experiments.views.session, name="session"),
     url(r'^trial', experiments.views.trial, name="trial"),
+    url(r'^report_divergent', experiments.views.report_divergent, name="report_divergent"),
+    url(r'^report_convergent', experiments.views.report_convergent, name="report_convergent"),
+    url(r'^report_recombination', experiments.views.report_recombination, name="report_recombination"),
+    url(r'^report_block', experiments.views.report_block, name="report_block"),
 ]

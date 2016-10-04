@@ -29,6 +29,7 @@ function proceed(e){
     index += 1;
     if (index >= Object.keys(stimuli).length){
       //ajax back the data, display generic message, button submits back to master views
+      end_trial();
     } else {
       refresh();
     }

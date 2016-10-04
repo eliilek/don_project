@@ -44,11 +44,16 @@ def trial(request):
         sub = Subject.objects.get(id=request.session['user_id'])
     except:
         return HttpResponse("Please return to the landing page and enter an ID.")
-    response_set = FullResponseSet(subject=sub)
-    response_set.save()
-    trials = copy.copy(TRIALS)
-    random.shuffle(trials)
-    return trials[0](request, sub, response_set)
+    if not 'remaining_trials' in request.session.keys():
+        response_set = FullResponseSet(subject=sub)
+        response_set.save()
+        trials = copy.copy(TRIALS)
+        random.shuffle(trials)
+        request.session['remaining_trials'] = trials
+    elif len(request.session['remaining_trials']) == 0:
+        #Send to completion page
+        
+    return request.session['remaining_trials'].pop()(request, sub, response_set)
 
 def divergent(request, sub, response_set):
     divergent_set = DivergentResponseSet(response_set=response_set)
