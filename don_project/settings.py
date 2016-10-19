@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'experiments',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# Session settings
+SESSION_SAVE_EVERY_REQUEST = True
 
 WSGI_APPLICATION = 'don_project.wsgi.application'
 

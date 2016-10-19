@@ -5,16 +5,19 @@
   </head>
   <body>
     <div>
-      <h3>Subject ID: {{ sub.id }}</h3>
+      <h3>Subject ID: {{ sub.subject_id }}</h3>
     </div><br /><br />
     {% if response_list %}
     <div>
       <table>
         <tr>
           <th>Responses:</th>
-        </tr><tr>
-          <th>TODO second row</th>
         </tr>
+        {% for response in response_list %}
+        <tr>
+          <td>{{ response.created }}</td>
+        </tr>
+        {% endfor %}
       </table>
     </div><br /><br />
     {% endif %}

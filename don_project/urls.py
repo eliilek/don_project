@@ -26,5 +26,5 @@ urlpatterns = [
     url(r'^report_divergent', experiments.views.report_divergent, name="report_divergent"),
     url(r'^report_convergent', experiments.views.report_convergent, name="report_convergent"),
     url(r'^report_recombination', experiments.views.report_recombination, name="report_recombination"),
-    url(r'^report_block', experiments.views.report_block, name="report_block"),
+    #url(r'^report_block', experiments.views.report_block, name="report_block"),
 ]

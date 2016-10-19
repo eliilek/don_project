@@ -1,3 +1,12 @@
+function record_response(text_box){
+  var response_end_time = Date.now();
+  responses[index]['time_' + response_index] = response_start_time - response_end_time
+  responses[index]['response_' + response_index] = $(text_box).val()
+  response_index += 1;
+  $(text_box).prop('disabled', true);
+  response_start_time = Date.now();
+}
+
 $(document).ready(function(){
   responses = {};
   $(".instructions").html("From the given sample word item, provide 5 ways in which the<br />item can be used functionally.");
@@ -11,8 +20,10 @@ $(document).ready(function(){
       $('.responses').append(field);
     }
     //If buggy, try replacing this with a single function which calls record_response($(this))
-    $('input[type=text]').blur($(this), record_response);
-    var button = $('<button />');
+    $('input[type=text]').blur(function(){
+      record_response(this);
+    });
+    var button = $('<button>Next</button>');
     button.prop('type', 'button');
     button.click(proceed);
     $('.responses').append(button);
@@ -44,14 +55,4 @@ function refresh(){
   $('input[type=text]').prop('disabled', false);
   $('input[type=text]').val('');
   responses[index] = {};
-}
-
-//text_box is the jquery object $(this) from the blur trigger
-function record_reponse(text_box){
-  var response_end_time = Date.now();
-  responses[index]['time_' + response_index] = response_start_time - response_end_time
-  responses[index]['response_' + response_index] = text_box.val()
-  response_index += 1;
-  text_box.prop('disabled', true);
-  response_start_time = Date.now();
 }
