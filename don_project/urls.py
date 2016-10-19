@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from django.conf import settings
 from django.contrib import admin
 import experiments.views
 
@@ -29,7 +28,3 @@ urlpatterns = [
     url(r'^report_recombination', experiments.views.report_recombination, name="report_recombination"),
     #url(r'^report_block', experiments.views.report_block, name="report_block"),
 ]
-if not settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-    )
