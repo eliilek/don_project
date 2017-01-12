@@ -112,3 +112,18 @@ class RecombinationResponse(models.Model):
 
 class BlockDesignResponseSet(models.Model):
     response_set = models.ForeignKey(FullResponseSet, on_delete=models.CASCADE)
+
+class BlockDesignResponse(models.Model):
+    block_design_set = models.ForeignKey(BlockDesignResponseSet, on_delete=models.CASCADE)
+    response_1_unique = models.BooleanField(default=False)
+    response_2_unique = models.BooleanField(default=False)
+    response_3_unique = models.BooleanField(default=False)
+    response_4_unique = models.BooleanField(default=False)
+    response_5_unique = models.BooleanField(default=False)
+    time_1 = models.DurationField()
+    time_2 = models.DurationField()
+    time_3 = models.DurationField()
+    time_4 = models.DurationField()
+    time_5 = models.DurationField()
+    total_time = models.DurationField()
+    stimulus = models.ForeignKey(Stimulus, on_delete = models.PROTECT, null=True, blank=True)

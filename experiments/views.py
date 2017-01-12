@@ -52,7 +52,7 @@ def divergent(request, sub):
     random.shuffle(stimuli_to_use)
     sub.save()
 
-    return render(request, "trial.html", {"trial_type":"divergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use))})
+    return render(request, "trial.html", {"trial_type":"divergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
 
 def report_divergent(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -99,7 +99,7 @@ def convergent(request, sub):
     random.shuffle(stimuli_to_use)
     sub.save()
 
-    return render(request, "trial.html", {"trial_type":"convergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use))})
+    return render(request, "trial.html", {"trial_type":"convergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
 
 def report_convergent(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -133,7 +133,7 @@ def recombination(request, sub):
     used = [stim.stim for stim in sub.used_recombination_stimuli.all()]
     stimuli_to_use = []
     while len(stimuli_to_use) < 5:
-        next_stim = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
+        next_stim = ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(5))
         if not (next_stim in used):
             try:
                 temp = Stimulus.objects.get(task=Stimulus.RECOMBINATION, stim=next_stim)
@@ -143,7 +143,7 @@ def recombination(request, sub):
             stimuli_to_use.append(model_to_dict(temp))
             sub.used_recombination_stimuli.add(temp)
     sub.save()
-    return render(request, "trial.html", {"trial_type":"recombination", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use))})
+    return render(request, "trial.html", {"trial_type":"recombination", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
 
 def report_recombination(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -173,9 +173,55 @@ def report_recombination(request):
             pass
     return HttpResponse("You shouldn't see this message")
 
-#def block_design(request, sub):
+def block_design(request, sub):
+    used = [stim.stim for stim in sub.used_block_design_stimuli.all()]
+    stimuli_to_use = []
+    while len(stimuli_to_use) < 5:
+        temp_stim_str = []
+        temp_stim = random.sample(range(19), 5)
+        for num in temp_stim:
+            temp_stim_str.append(str(num))
+        next_stim = ','.join(temp_stim_str)
+        if not (next_stim in used):
+            try:
+                temp = Stimulus.objects.get(task=Stimulus.BLOCK_DESIGN, stim=next_stim)
+            except:
+                temp = Stimulus(task=Stimulus.BLOCK_DESIGN, stim=next_stim)
+                temp.save()
+            stimuli_to_use.append(model_to_dict(temp))
+            sub.used_block_design_stimuli.add(temp)
+    sub.save()
+    return render(request, "trial.html", {"trial_type":"block design", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
 
-TRIALS = ['divergent', 'convergent', 'recombination']
+def report_block(request):
+    if request.method != "POST" or not "response_set" in request.session.keys():
+        return HttpResponse("Oops! You got to this link by accident. Please return to the home page.")
+    json_object = json.loads(request.body)
+    for response in json_object:
+        try:
+            block = BlockDesignResponseSet(response_set=request.session['response_set'])
+            block.save()
+            block_design_response = BlockDesignResponse(
+                block_design_set = block,
+                response_1_unique = response['response_1_unique'],
+                time_1 = response['time_1'],
+                response_2_unique = response['response_2_unique'],
+                time_2 = response['time_2'],
+                response_3_unique = response['response_3_unique'],
+                time_3 = response['time_3'],
+                response_4_unique = response['response_4_unique'],
+                time_4 = response['time_4'],
+                response_5_unique = response['response_5_unique'],
+                time_5 = response['time_5'],
+                total_time = response['total_time'],
+                stimulus = Stimulus.objects.get(id=response['stimulus'])
+            )
+            block_design_response.save()
+        except:
+            pass
+    return HttpResponse("You shouldn't see this message")
+
+TRIALS = ['divergent', 'convergent', 'recombination', 'block design']
 
 def trial(request):
     try:
@@ -199,5 +245,7 @@ def trial(request):
         return divergent(request, sub)
     elif next_phase == 'convergent':
         return convergent(request, sub)
-    else:
+    elif next_phase == 'recombination':
         return recombination(request, sub)
+    else:
+        return block_design(request, sub)

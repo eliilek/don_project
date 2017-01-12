@@ -4,37 +4,42 @@ $(document).ready(function(){
   $("button").click(function(e){
     $(".instructions_div").remove();
 
-    for(var i = 0; i < 5; i++){
+    for(var i = 0; i < 3; i++){
       var field = $('<input />');
       field.prop('type', 'text');
-      field.prop('maxLength', 5);
-      $('.responses').append(field);
+      field.prop('maxLength', 50);
+      $('#top').append(field);
+    }
+    for(var i = 0; i < 2; i++){
+      var field = $('<input />');
+      field.prop('type', 'text');
+      field.prop('maxLength', 50);
+      $('#bottom').append(field);
     }
     //If buggy, try replacing this with a single function which calls record_response($(this))
     $('input[type=text]').blur(function(){
-      record_response(this);
-    });
+      if ($(this).val() != ""){
+        record_response(this);
+      }});
     var button = $('<button>Next</button>');
     button.prop('type', 'button');
     button.click(proceed);
-    $('.responses').append(button);
+    $('body').append(button);
 
     refresh();
   });
 });
 
-function proceed(e){
+function proceed(){
   var trial_end_time = Date.now()
-  if (Object.keys(responses[index]).length == 10){
-    responses[index]['total_time'] = trial_start_time - trial_end_time;
-    responses[index]['stimulus'] = stimuli[index].id;
-    index += 1;
-    if (index >= Object.keys(stimuli).length){
-      //ajax back the data, display generic message, button submits back to master views
-      end_trial();
-    } else {
-      refresh();
-    }
+  responses[index]['total_time'] = trial_start_time - trial_end_time;
+  responses[index]['stimulus'] = stimuli[index].id;
+  index += 1;
+  if (index >= Object.keys(stimuli).length){
+    //ajax back the data, display generic message, button submits back to master views
+    end_trial();
+  } else {
+    refresh();
   }
 }
 
@@ -56,4 +61,7 @@ function record_response(text_box){
   response_index += 1;
   $(text_box).prop('disabled', true);
   response_start_time = Date.now();
+  if (response_index == 6){
+    proceed();
+  }
 }

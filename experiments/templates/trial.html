@@ -3,6 +3,7 @@
   <head>
     {% load static %}
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="{% static 'experiments/style.css' %}">
     {% if trial_type == "divergent" %}
     <script src="{% static 'experiments/divergent.js' %}" type="text/javascript"></script>
     {% elif trial_type == "convergent" %}
@@ -66,7 +67,6 @@
     <div class='top-header'>
       <h2>{{trial_type | capfirst}} Tasks</h2>
     </div>
-    <div class='stimuli'></div>
     <div class='instructions_div'>
       <p>
         Instructions:
@@ -75,6 +75,10 @@
       </p><br />
       <button type="button">Start!</button>
     </div>
-    <div class='responses'></div>
+    <div class='response-container'>
+      <div class='stimuli'></div>
+      <div class='responses' id='top'></div>
+      <div class='responses' id='bottom'></div>
+    </div>
   </body>
 </html>
