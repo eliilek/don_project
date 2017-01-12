@@ -19,14 +19,18 @@ var used_pieces = 0;
 var current_record = [false,false,false,false,false];
 
 function drag(evt){
-  evt.originalEvent.dataTransfer.setData("text", $(evt.target));
+  evt.target.id = "current_dragged";
+}
+function dragend(evt){
+  $("#current_dragged").removeAttr('id');
 }
 
 function check_valid(target, drop_target){
   //Add 1,2,3 x and y from dragged target
   //If any are out of bounds, valid=false
   //If any are filled in the result grid, valid=false
-  alert("checking valid with target: " + target + " and drop_target: " + drop_target)
+  console.log("checking valid with target: " + target + " and drop_target: " + drop_target);
+  console.log($(target).data("data-x1"));
   var valid = true;
   var x = drop_target.data("data-x");
   var y = drop_target.data("data-y");
@@ -75,25 +79,29 @@ function add_css(target, drop_target, css){
   else if (drop_target.parent().attr('id') == "big3") temp_grid = 300;
   else if (drop_target.parent().attr('id') == "big4") temp_grid = 400;
   else if (drop_target.parent().attr('id') == "big5") temp_grid = 500;
-  big_id = big_id + drop_target.data("data-x") * 10 + drop_target.data("data-y");
-  var temp_id = big_id + target.data("data-x1") * 10 + drop_target.data("data-y1");
-  $("#" + temp_id).css(css);
-  temp_id = big_id + target.data("data-x2") * 10 + drop_target.data("data-y2");
-  $("#" + temp_id).css(css);
-  temp_id = big_id + target.data("data-x3") * 10 + drop_target.data("data-y3");
-  $("#" + temp_id).css(css);
+  big_id = big_id + Number(drop_target.data("data-x")) * 10 + Number(drop_target.data("data-y"));
+  console.log(drop_target.data("data-x") + " || " + drop_target.data("data-y"));
+  console.log(big_id)
+  var temp_id = big_id + Number(target.data("data-x1")) * 10 + Number(target.data("data-y1"));
+  console.log(target.data("data-x1") + " || " + target.data("data-y1"));
+  console.log("css: " + css + ", temp_id: " + temp_id.toString());
+  $("#" + temp_id.toString()).css(css);
+  temp_id = big_id + Number(target.data("data-x2")) * 10 + Number(target.data("data-y2"));
+  $("#" + temp_id.toString()).css(css);
+  temp_id = big_id + Number(target.data("data-x3")) * 10 + Number(target.data("data-y3"));
+  $("#" + temp_id.toString()).css(css);
 }
 
 function drag_enter(evt){
-  alert("Drag enter");
+  console.log("Drag enter");
   evt.preventDefault();
   evt.stopPropagation();
   var drop_target = $(this);
 
-  var target = evt.originalEvent.dataTransfer.getData("text");
+  var target = $("#current_dragged");
   var valid = check_valid(target, drop_target);
   if (valid){
-    add_css(target, drop_target, {"background":"grey"});
+    add_css($(target), drop_target, {"background":"grey"});
   }
 }
 
@@ -102,7 +110,7 @@ function drag_leave(evt){
   evt.stopPropagation();
   var drop_target = $(this);
 
-  var target = evt.dataTransfer.getData("text");
+  var target = $("#current_dragged");
   var valid = check_valid(target, drop_target);
   if (valid){
     add_css(target, drop_target, {"background":"none"})
@@ -342,67 +350,22 @@ $(document).ready(function(){
   var div = $('<div></div>');
   div.attr('id', 'big1');
   div.addClass('block_design_response');
-  div.on('dragover', function(event){
-    event.preventDefault();
-  })
-  div.on('dragenter', function(event){
-    event.preventDefault();
-  })
-  div.on('drop', function(event){
-    event.preventDefault();
-  })
   $('#top').append(div);
   div = $('<div></div>');
   div.attr('id', 'big2');
   div.addClass('block_design_response');
-  div.on('dragover', function(event){
-    event.preventDefault();
-  })
-  div.on('dragenter', function(event){
-    event.preventDefault();
-  })
-  div.on('drop', function(event){
-    event.preventDefault();
-  })
   $('#top').append(div);
   div = $('<div></div>');
   div.attr('id', 'big3');
   div.addClass('block_design_response');
-  div.on('dragover', function(event){
-    event.preventDefault();
-  })
-  div.on('dragenter', function(event){
-    event.preventDefault();
-  })
-  div.on('drop', function(event){
-    event.preventDefault();
-  })
   $('#top').append(div);
   div = $('<div></div>');
   div.attr('id', 'big4');
   div.addClass('block_design_response');
-  div.on('dragover', function(event){
-    event.preventDefault();
-  })
-  div.on('dragenter', function(event){
-    event.preventDefault();
-  })
-  div.on('drop', function(event){
-    event.preventDefault();
-  })
   $('#bottom').append(div);
   div = $('<div></div>');
   div.attr('id', 'big5');
   div.addClass('block_design_response');
-  div.on('dragover', function(event){
-    event.preventDefault();
-  })
-  div.on('dragenter', function(event){
-    event.preventDefault();
-  })
-  div.on('drop', function(event){
-    event.preventDefault();
-  })
   $('#bottom').append(div);
 
   for(var i=0; i<GRID_SIZE; i++){
@@ -413,12 +376,11 @@ $(document).ready(function(){
       result_grid_4[i][j] = false;
       result_grid_5[i][j] = false;
 
-      var div = $('<div></div>');
+      div = $('<div></div>');
       div.addClass('destination');
       div.data({"data-x":i, "data-y":j});
       div.on('dragenter', drag_enter);
       div.on('dragover', function(evt){
-        alert("Blargh");
         evt.preventDefault();
       });
       div.on('dragleave', drag_leave);
@@ -426,9 +388,11 @@ $(document).ready(function(){
         evt.preventDefault();
         evt.stopPropagation();
 
-        var target = evt.dataTransfer.getData("text");
+        var target = $("#current_dragged");
         var drop_target = $(this);
         var valid = check_valid(target, drop_target);
+        var x = drop_target.data("data-x");
+        var y = drop_target.data("data-y");
         //If valid, unshade each, set borders on each, set true in result grid
         if (valid){
           add_css(target, drop_target, {"border":"-1px solid black", "background":"none"});
@@ -474,15 +438,15 @@ $(document).ready(function(){
         }
       });
       div.attr('id', (100+(i*10)+j).toString());
-      $("#big1").append(div.clone());
+      $("#big1").append(div.clone(true));
       div.attr('id', (200+(i*10)+j).toString());
-      $("#big2").append(div.clone());
+      $("#big2").append(div.clone(true));
       div.attr('id', (300+(i*10)+j).toString());
-      $("#big3").append(div.clone());
+      $("#big3").append(div.clone(true));
       div.attr('id', (400+(i*10)+j).toString());
-      $("#big4").append(div.clone());
+      $("#big4").append(div.clone(true));
       div.attr('id', (500+(i*10)+j).toString());
-      $("#big5").append(div.clone());
+      $("#big5").append(div.clone(true));
     }
   }
   refresh();
