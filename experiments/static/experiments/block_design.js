@@ -15,6 +15,7 @@ for (var i = 0; i < GRID_SIZE; i++) {
 }
 var active_block = null;
 var used_pieces = 0;
+var clean = false;
 
 var current_record = [false,false,false,false,false];
 
@@ -29,8 +30,6 @@ function check_valid(target, drop_target){
   //Add 1,2,3 x and y from dragged target
   //If any are out of bounds, valid=false
   //If any are filled in the result grid, valid=false
-  console.log("checking valid with target: " + target + " and drop_target: " + drop_target);
-  console.log($(target).data("data-x1"));
   var valid = true;
   var x = drop_target.data("data-x");
   var y = drop_target.data("data-y");
@@ -76,15 +75,11 @@ function add_css(target, drop_target, css){
   var big_id = 0;
   if (drop_target.parent().attr('id') == "big1") big_id = 100;
   else if (drop_target.parent().attr('id') == "big2") big_id = 200;
-  else if (drop_target.parent().attr('id') == "big3") temp_grid = 300;
-  else if (drop_target.parent().attr('id') == "big4") temp_grid = 400;
-  else if (drop_target.parent().attr('id') == "big5") temp_grid = 500;
+  else if (drop_target.parent().attr('id') == "big3") big_id = 300;
+  else if (drop_target.parent().attr('id') == "big4") big_id = 400;
+  else if (drop_target.parent().attr('id') == "big5") big_id = 500;
   big_id = big_id + Number(drop_target.data("data-x")) * 10 + Number(drop_target.data("data-y"));
-  console.log(drop_target.data("data-x") + " || " + drop_target.data("data-y"));
-  console.log(big_id)
   var temp_id = big_id + Number(target.data("data-x1")) * 10 + Number(target.data("data-y1"));
-  console.log(target.data("data-x1") + " || " + target.data("data-y1"));
-  console.log("css: " + css + ", temp_id: " + temp_id.toString());
   $("#" + temp_id.toString()).css(css);
   temp_id = big_id + Number(target.data("data-x2")) * 10 + Number(target.data("data-y2"));
   $("#" + temp_id.toString()).css(css);
@@ -93,41 +88,46 @@ function add_css(target, drop_target, css){
 }
 
 function drag_enter(evt){
-  console.log("Drag enter");
   evt.preventDefault();
   evt.stopPropagation();
+
   var drop_target = $(this);
+  drop_target.parent().children().css("background-color", "white");
+  clean = true;
 
   var target = $("#current_dragged");
   var valid = check_valid(target, drop_target);
   if (valid){
-    add_css($(target), drop_target, {"background":"grey"});
+    add_css($(target), drop_target, {"background-color":"grey"});
   }
 }
 
 function drag_leave(evt){
   evt.preventDefault();
   evt.stopPropagation();
-  var drop_target = $(this);
-
-  var target = $("#current_dragged");
-  var valid = check_valid(target, drop_target);
-  if (valid){
-    add_css(target, drop_target, {"background":"none"})
+  if (clean){
+    clean = false;
+  } else {
+    var drop_target = $(this);
+    drop_target.parent().children().css("background-color", "white");
   }
 }
 
 function createShapes(key){
   var container = $('<div></div>');
   container.addClass("block_container");
-  var block1 = $('<div></div>');
-  block1.addClass("block_internal");
-  var block2 = $('<div></div>');
-  block2.addClass("block_internal");
-  var block3 = $('<div></div>');
-  block3.addClass("block_internal");
-  var block4 = $('<div></div>');
-  block4.addClass("block_internal");
+  var block1 = $('<div class="block_internal" draggable=true></div>');
+  block1.on('dragstart', drag);
+  block1.on('dragend', dragend);
+  var block2 = $('<div class="block_internal" draggable=true></div>');
+  block2.on('dragstart', drag);
+  block2.on('dragend', dragend);
+  var block3 = $('<div class="block_internal" draggable=true></div>');
+  block3.on('dragstart', drag);
+  block3.on('dragend', dragend);
+  var block4 = $('<div class="block_internal" draggable=true></div>');
+  block4.on('dragstart', drag);
+  block4.on('dragend', dragend);
 
   //if (key == 0){
     block1.data({"data-x1":1, "data-x2":0, "data-x3":1, "data-y1":0, "data-y2":1, "data-y3":1});
@@ -146,9 +146,6 @@ function createShapes(key){
   container.append(block3);
   container.append(block4);
 
-  container.on('dragstart', drag);
-  container.css({"draggable":true});
-
   return container;
 }
 
@@ -165,6 +162,7 @@ function check(grid_1, left_1, right_1, top_1, bottom_1, grid_2, left_2, right_2
 }
 
 function refresh(){
+  responses[index] = {};
   var shape_set = stimuli[index].stim.split(",");
   $(".stimuli").empty();
   for (var i=0; i<5; i++){
@@ -194,6 +192,7 @@ function record(){
     current_record[4] == true;
     responses[index]['time_5'] = end_time - response_start_time;
   }
+  active_block = null;
   //If 5th block recording, check uniqueness, refresh
   var done = true;
   for (var i = 0; i < 5; i++){
@@ -307,42 +306,50 @@ function record(){
   } else {
     //If not, reenable incomplete grids, reenable tetris pieces
     if (current_record[0] == false){
-      $("#big1").css({"background":"none"});
-      $("#big1").on("dragenter", function(event){
-        event.preventDefault();
+      $("#big1").children().css({"background-color":"white"});
+      $("#big1").children().on('dragover', function(evt){
+        evt.preventDefault();
       });
+      $("#big1").children().on('dragenter', dragenter);
     }
     if (current_record[1] == false){
-      $("#big2").css({"background":"none"});
-      $("#big2").on("dragenter", function(event){
-        event.preventDefault();
+      $("#big2").children().css({"background-color":"white"});
+      $("#big2").children().on('dragover', function(evt){
+        evt.preventDefault();
       });
+      $("#big2").children().on('dragenter', dragenter);
+      
     }
     if (current_record[2] == false){
-      $("#big3").css({"background":"none"});
-      $("#big3").on("dragenter", function(event){
-        event.preventDefault();
+      $("#big3").children().css({"background-color":"white"});
+      $("#big3").children().on('dragover', function(evt){
+        evt.preventDefault();
       });
+      $("#big3").children().on('dragenter', dragenter);
     }
     if (current_record[3] == false){
-      $("#big4").css({"background":"none"});
-      $("#big4").on("dragenter", function(event){
-        event.preventDefault();
+      $("#big4").children().css({"background-color":"white"});
+      $("#big4").children().on('dragover', function(evt){
+        evt.preventDefault();
       });
+      $("#big4").children().on('dragenter', dragenter);
     }
     if (current_record[4] == false){
-      $("#big5").css({"background":"none"});
-      $("#big5").on("dragenter", function(event){
-        event.preventDefault();
+      $("#big5").children().css({"background-color":"white"});
+      $("#big5").children().on('dragover', function(evt){
+        evt.preventDefault();
       });
+      $("#big5").children().on('dragenter', dragenter);
     }
     //Should reenable all block-containers
-    $(".block_container").css({"background":"none", "draggable":true});
+    $(".block_container").children().css({"background-color":"white"});
+    $(".block_container").children().attr("draggable", true);
     response_start_time = Date.now();
   }
 }
 
 $(document).ready(function(){
+  responses = {};
   $(".instructions").html("“In this task, you will be presented with a sample of 5 shapes.");
   $("button").click(function(e){
     $(".instructions_div").remove();
@@ -395,7 +402,7 @@ $(document).ready(function(){
         var y = drop_target.data("data-y");
         //If valid, unshade each, set borders on each, set true in result grid
         if (valid){
-          add_css(target, drop_target, {"border":"-1px solid black", "background":"none"});
+          add_css(target, drop_target, {"border":"1px solid black", "width":"28px", "height":"28px", "background-color":"white"});
           var temp_grid;
           if (drop_target.parent().attr('id') == "big1") temp_grid = result_grid_1;
           else if (drop_target.parent().attr('id') == "big2") temp_grid = result_grid_2;
@@ -411,26 +418,37 @@ $(document).ready(function(){
             response_start_time = Date.now();
             active_block = temp_grid;
             if (temp_grid != result_grid_1){
-              $("#big1").css({"background":"grey"});
-              $("#big1").off("dragover");
-            } else if (temp_grid != result_grid_2){
-              $("#big2").css({"background":"grey"});
-              $("#big2").off("dragover");
-            } else if (temp_grid != result_grid_3){
-              $("#big3").css({"background":"grey"});
-              $("#big3").off("dragover");
-            } else if (temp_grid != result_grid_4){
-              $("#big4").css({"background":"grey"});
-              $("#big4").off("dragover");
-            } else if (temp_grid != result_grid_5){
-              $("#big5").css({"background":"grey"});
-              $("#big5").off("dragover");
+              $("#big1").children().css({"background-color":"grey"});
+              $("#big1").children().off("dragover");
+              $("#big1").children().off("dragenter");
+            }
+            if (temp_grid != result_grid_2){
+              $("#big2").children().css({"background-color":"grey"});
+              $("#big2").children().off("dragover");
+              $("#big2").children().off("dragenter");
+            }
+            if (temp_grid != result_grid_3){
+              $("#big3").children().css({"background-color":"grey"});
+              $("#big3").children().off("dragover");
+              $("#big3").children().off("dragenter");
+            }
+            if (temp_grid != result_grid_4){
+              $("#big4").children().css({"background-color":"grey"});
+              $("#big4").children().off("dragover");
+              $("#big4").children().off("dragenter");
+            }
+            if (temp_grid != result_grid_5){
+              $("#big5").children().css({"background-color":"grey"});
+              $("#big5").children().off("dragover");
+              $("#big5").children().off("dragenter");
             }
           }
           //Disable the tetris piece
-          target.parent().css({"background":"grey", "draggable":false});
+          target.parent().children().css({"background-color":"grey"});
+          target.parent().children().attr("draggable", false);
           //Check for 5 pieces dropped, if yes call record
           used_pieces += 1;
+          console.log("used_pieces: " + used_pieces.toString());
           if (used_pieces == 5){
             record();
             used_pieces = 0;

@@ -221,7 +221,7 @@ def report_block(request):
             pass
     return HttpResponse("You shouldn't see this message")
 
-TRIALS = ['divergent', 'convergent', 'recombination']
+TRIALS = ['divergent', 'convergent', 'recombination', 'block_design']
 
 def trial(request):
     try:
