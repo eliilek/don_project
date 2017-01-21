@@ -12,7 +12,8 @@ function record_response(text_box){
 
 $(document).ready(function(){
   responses = {};
-  $(".instructions").html("“In this task, you will be presented with a sample word located in the middle top part of the screen, and you will type an associated word in each of the blank <br> spaces below the sample word.  Once you complete filling up the blank spaces with your answers, you can then click on the next button at the bottom right corner <br> of your computer screen to proceed to the next trial. In instances where you cannot think of associated words to fill all of the blank spaces, you can still proceed to <br> the next trial by clicking the next button. There are a total of 5 trials for you to complete. Once you complete your last trial, the computer will lead you to the next task.”");
+  var instructions = "In this task, you will be presented with a sample word located in the middle top part of the screen, and you will type an associated word in each of the blank <br> spaces below the sample word.  Once you complete filling up the blank spaces with your answers, you can then click on the next button at the bottom right corner <br> of your computer screen to proceed to the next trial. In instances where you cannot think of associated words to fill all of the blank spaces, you can still proceed to <br> the next trial by clicking the next button. There are a total of 5 trials for you to complete." + last_trial_instructions;
+  $(".instructions").html(instructions);
   $("button").click(function(e){
     $(".instructions_div").remove();
 

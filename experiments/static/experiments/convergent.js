@@ -36,7 +36,8 @@ function record_response(text_box){
 
 $(document).ready(function(){
   responses = {};
-  $(".instructions").html("From the given sample word item, provide 5 possible words that<br />are associated with the given sample words.");
+  var instructions = "In this task, you will be presented with a 3-word sample located in the middle top part of the screen, and you will type an associated word in each of the blank spaces below the sample<br>word.  Once you complete filling up the blank spaces with your answers, you can then click on the next button at the bottom right corner of your computer screen to proceed to the next<br>trial. In instances where you cannot think of associated words to fill all of the blank spaces, you can still proceed to the next trial by clicking the next button. There are a total of 5 trials<br>for you to complete." + last_trial_instructions
+  $(".instructions").html(instructions);
   $("button").click(function(e){
     $(".instructions_div").remove();
 

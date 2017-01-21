@@ -35,7 +35,7 @@ def subject(request):
     response_list = FullResponseSet.objects.filter(subject=sub)
     return render(request, 'subject.html', {'sub': sub, 'response_list':response_list})
 
-def divergent(request, sub):
+def divergent(request, sub, last):
     stimuli = list(Stimulus.objects.filter(task=Stimulus.DIVERGENT))
     used = list(sub.used_divergent_stimuli.all())
     if len(used) > len(stimuli) - TRIAL_NUMBER:
@@ -52,7 +52,7 @@ def divergent(request, sub):
     random.shuffle(stimuli_to_use)
     sub.save()
 
-    return render(request, "trial.html", {"trial_type":"divergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
+    return render(request, "trial.html", {"trial_type":"divergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":last})
 
 def report_divergent(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -82,7 +82,7 @@ def report_divergent(request):
             pass
     return HttpResponse("You shouldn't see this message")
 
-def convergent(request, sub):
+def convergent(request, sub, last):
     stimuli = list(Stimulus.objects.filter(task=Stimulus.CONVERGENT))
     used = list(sub.used_convergent_stimuli.all())
     if len(used) > len(stimuli) - TRIAL_NUMBER:
@@ -99,7 +99,7 @@ def convergent(request, sub):
     random.shuffle(stimuli_to_use)
     sub.save()
 
-    return render(request, "trial.html", {"trial_type":"convergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
+    return render(request, "trial.html", {"trial_type":"convergent", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":last})
 
 def report_convergent(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -129,7 +129,7 @@ def report_convergent(request):
             pass
     return HttpResponse("You shouldn't see this message")
 
-def recombination(request, sub):
+def recombination(request, sub, last):
     used = [stim.stim for stim in sub.used_recombination_stimuli.all()]
     stimuli_to_use = []
     while len(stimuli_to_use) < 5:
@@ -143,7 +143,7 @@ def recombination(request, sub):
             stimuli_to_use.append(model_to_dict(temp))
             sub.used_recombination_stimuli.add(temp)
     sub.save()
-    return render(request, "trial.html", {"trial_type":"recombination", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
+    return render(request, "trial.html", {"trial_type":"recombination", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":last})
 
 def report_recombination(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -173,7 +173,7 @@ def report_recombination(request):
             pass
     return HttpResponse("You shouldn't see this message")
 
-def block_design(request, sub):
+def block_design(request, sub, last):
     used = [stim.stim for stim in sub.used_block_design_stimuli.all()]
     stimuli_to_use = []
     while len(stimuli_to_use) < 5:
@@ -191,7 +191,7 @@ def block_design(request, sub):
             stimuli_to_use.append(model_to_dict(temp))
             sub.used_block_design_stimuli.add(temp)
     sub.save()
-    return render(request, "trial.html", {"trial_type":"block design", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":False})
+    return render(request, "trial.html", {"trial_type":"block design", "stimuli_to_use":mark_safe(json.dumps(stimuli_to_use)), "last_trial":last})
 
 def report_block(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
@@ -236,16 +236,24 @@ def trial(request):
         request.session['remaining_trials'] = trials
         request.session['response_set'] = response_set.pk
     elif len(request.session['remaining_trials']) == 0:
-        #Send to completion page
         request.session.pop('remaining_trials')
-        return HttpResponse("Not implemented yet, but you're finished, tell Don.")
+        response_set = FullResponseSet(subject=sub)
+        response_set.save()
+        trials = copy.copy(TRIALS)
+        random.shuffle(trials)
+        request.session['remaining_trials'] = trials
+        request.session['response_set'] = response_set.pk
 
     next_phase = request.session['remaining_trials'].pop()
-    if next_phase == 'divergent':
-        return divergent(request, sub)
-    elif next_phase == 'convergent':
-        return convergent(request, sub)
-    elif next_phase == 'recombination':
-        return recombination(request, sub)
+    if len(request.session['remaining_trials']) == 0:
+        last = True;
     else:
-        return block_design(request, sub)
+        last = False;
+    if next_phase == 'divergent':
+        return divergent(request, sub, last)
+    elif next_phase == 'convergent':
+        return convergent(request, sub, last)
+    elif next_phase == 'recombination':
+        return recombination(request, sub, last)
+    else:
+        return block_design(request, sub, last)

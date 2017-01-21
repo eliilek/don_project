@@ -1,6 +1,7 @@
 $(document).ready(function(){
   responses = {};
-  $(".instructions").html("From the given sample of an alphanumeric combination, type in<br />5 novel combinations of alphanumeric characters in each of the<br />empty boxes.");
+  var instructions = "In this task, you will be presented with a sample of 5-alphanumeric combinations located in the middle top part of the screen. From the given sample, type a<br>variety of recombinations using the characters in the sample on each of the blank spaces provided.  Once you have completed filling up the blank spaces with your<br>answers, you can then click on the next button at the bottom right corner of your computer screen to proceed to the next trial. In instances where you cannot think<br>of new combinations to fill all of the blank spaces, you can still proceed to the next trial by clicking the next button. There are a total of 5 trials for you to<br>complete." + last_trial_instructions;
+  $(".instructions").html(instructions);
   $("button").click(function(e){
     $(".instructions_div").remove();
 
@@ -55,9 +56,28 @@ function refresh(){
 
 //text_box is the jquery object $(this) from the blur trigger
 function record_response(text_box){
+  //Checks validity
+  var response_str = $(text_box).val().toUpperCase();
+  if (response_str.split('').sort().join('') != stimuli[index].stim.split('').sort().join('')){
+    $(text_box).val('');
+    return;
+  }
+  console.log(response_index.toString());
+  if (response_index > 1){
+    for (var i = response_index-1; i > 0; i--){
+      console.log(i.toString());
+      console.log(response_str);
+      console.log(responses[index]['response_' + i.toString()]);
+      if (response_str == responses[index]['response_' + i.toString()]){
+        $(text_box).val('');
+        return;
+      }
+    }
+  }
+
   var response_end_time = Date.now();
   responses[index]['time_' + response_index] = response_start_time - response_end_time
-  responses[index]['response_' + response_index] = $(text_box).val()
+  responses[index]['response_' + response_index] = $(text_box).val().toUpperCase();
   response_index += 1;
   $(text_box).prop('disabled', true);
   response_start_time = Date.now();

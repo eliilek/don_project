@@ -15,6 +15,11 @@
     {% endif %}
     <script type="text/javascript">
       var stimuli = JSON.parse('{{ stimuli_to_use }}');
+      if ("{{last_trial}}" == "True"){
+        var last_trial_instructions = ""
+      } else {
+        var last_trial_instructions = " Once you complete your last trial, the computer will lead you to the next task."
+      }
       var index = 0;
       var response_index = 1;
       var trial_start_time;
@@ -58,8 +63,13 @@
           var report_url = "{% url 'report_block' %}"
         {% endif %}
         post(report_url, responses);
-        alert("You're all done with this trial! Press ok to proceed.");
-        $(location).attr('href', "{% url 'trial' %}");
+        if ("{{last_trial}}" == "True"){
+          alert("Your task is complete!");
+          $(location).attr('href', "{% url 'subject' %}");
+        } else {
+          alert("It's time to proceed to the next task");
+          $(location).attr('href', "{% url 'trial' %}");
+        }
       }
     </script>
   </head>
