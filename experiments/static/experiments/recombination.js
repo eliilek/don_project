@@ -62,12 +62,8 @@ function record_response(text_box){
     $(text_box).val('');
     return;
   }
-  console.log(response_index.toString());
   if (response_index > 1){
     for (var i = response_index-1; i > 0; i--){
-      console.log(i.toString());
-      console.log(response_str);
-      console.log(responses[index]['response_' + i.toString()]);
       if (response_str == responses[index]['response_' + i.toString()]){
         $(text_box).val('');
         return;
