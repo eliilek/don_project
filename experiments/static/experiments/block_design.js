@@ -426,10 +426,11 @@ function proceed(){
   }
 }
 
-function check(grid_1, left_1, right_1, top_1, bottom_1, grid_2, left_2, right_2, top_2, bottom_2){
+function check(grid_1, left_1, right_1, top_1, bottom_1, grid_2, right_2, left_2, top_2, bottom_2){
   var unique = false;
   for (var i=0; i<(right_1 - left_1) && !unique; i++){
     for (var j=0; j<bottom_1-top_1; j++){
+      console.log(i.toString() + " " + j.toString() + " " + left_1.toString() + " " + top_1.toString() + " " + left_2.toString() + " " + top_2.toString())
       if (grid_1[i+left_1][j+top_1] != grid_2[i+left_2][j+top_2]){
         unique = true;
         break;
