@@ -441,6 +441,10 @@ function check(grid_1, left_1, right_1, top_1, bottom_1, grid_2, right_2, left_2
 }
 
 function refresh(){
+  active_block = null;
+  used_pieces = 0;
+  clean = false;
+  current_record = [false,false,false,false,false];
   responses[index] = {};
   var shape_set = stimuli[index].stim.split(",");
   $(".stimuli").empty();
