@@ -24,9 +24,9 @@ def results(request):
     sub_responses = FullResponseSet.objects.filter(subject=sub)
     return render(request, 'results.html', {'sub':sub})
 
-def divergent_results(request, id):
+def divergent_results(request, userid):
     try:
-        sub = Subject.objects.get(subject_id=id)
+        sub = Subject.objects.get(subject_id=userid)
     except:
         return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
     fullSets = FullResponseSet.objects.filter(subject=sub)
@@ -39,9 +39,9 @@ def divergent_results(request, id):
 
     return render(request, 'task_results.html', {'sub':sub, 'responses':divergentResponses, 'task':"Divergent"})
 
-def convergent_results(request, id):
+def convergent_results(request, userid):
     try:
-        sub = Subject.objects.get(subject_id=id)
+        sub = Subject.objects.get(subject_id=userid)
     except:
         return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
     fullSets = FullResponseSet.objects.filter(subject=sub)
@@ -54,9 +54,9 @@ def convergent_results(request, id):
 
     return render(request, 'task_results.html', {'sub':sub, 'responses':convergentResponses, 'task':"Convergent"})
 
-def recombination_results(request, id):
+def recombination_results(request, userid):
     try:
-        sub = Subject.objects.get(subject_id=id)
+        sub = Subject.objects.get(subject_id=userid)
     except:
         return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
     fullSets = FullResponseSet.objects.filter(subject=sub)
@@ -69,9 +69,9 @@ def recombination_results(request, id):
 
     return render(request, 'task_results.html', {'sub':sub, 'responses':recombinationResponses, 'task':"Recombination"})
 
-def block_design_results(request, id):
+def block_design_results(request, userid):
     try:
-        sub = Subject.objects.get(subject_id=id)
+        sub = Subject.objects.get(subject_id=userid)
     except:
         return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
     fullSets = FullResponseSet.objects.filter(subject=sub)
