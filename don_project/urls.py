@@ -27,4 +27,9 @@ urlpatterns = [
     url(r'^report_convergent', experiments.views.report_convergent, name="report_convergent"),
     url(r'^report_recombination', experiments.views.report_recombination, name="report_recombination"),
     url(r'^report_block', experiments.views.report_block, name="report_block"),
+    url(r'^results', experiments.views.results, name="results"),
+    url(r'^divergent_results/(?P<userid>[0-9]+)', experiments.views.divergent_results, name="divergent_results"),
+    url(r'^convergent_results/(?P<userid>[0-9]+)', experiments.views.convergent_results, name="convergent_results"),
+    url(r'^recombination_results/(?P<userid>[0-9]+)', experiments.views.recombination_results, name="recombination_results"),
+    url(r'^block_design_results/(?P<userid>[0-9]+)', experiments.views.block_design_results, name="block_design_results"),
 ]

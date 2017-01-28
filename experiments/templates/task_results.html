@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="{% static 'experiments/style.css' %}">
+  </head>
+  <body>
+    <div>
+      <h3>Subject ID: {{ sub.subject_id }}</h3>
+    </div><br /><br />
+    {% if responses %}
+    <div>
+      <table>
+        <tr>
+          {% if task == "Block Design" %}
+          <th colspan=6>{{task}} Responses:</th>
+          {% else %}
+          <th colspan=5>{{task}} Responses:</th>
+          {% endif %}
+        </tr>
+        <tr>
+          <th>Date Recorded</th>
+          <th>Trial #</th>
+          {% if task == "Block Design" %}
+          <th>Response #</th>
+          <th>Novel Response</th>
+          {% else %}
+          <th>Response Text</th>
+          {% endif %}
+          <th>Response Latency</th>
+          <th>Total Trial Time</th>
+        </tr>
+        {% for response in responses %}
+        <tr>
+          <td>{{ response.created }}</td>
+          <td>{{ response.id }}</td>
+          {% if task == "Block Design" %}
+          <td>1</td>
+          <td>{{ response.response_1_unique }}</td>
+          {% else %}
+          <td>{{ response.response_1 }}</td>
+          {% endif %}
+          <td>{{ response.time_1 }}</td>
+          <td>{{ response.total_time }}</td>
+        </tr>
+        <tr>
+          <td>{{ response.created }}</td>
+          <td>{{ response.id }}</td>
+          {% if task == "Block Design" %}
+          <td>2</td>
+          <td>{{ response.response_2_unique }}</td>
+          {% else %}
+          <td>{{ response.response_2 }}</td>
+          {% endif %}
+          <td>{{ response.time_2 }}</td>
+          <td>{{ response.total_time }}</td>
+        </tr>
+        <tr>
+          <td>{{ response.created }}</td>
+          <td>{{ response.id }}</td>
+          {% if task == "Block Design" %}
+          <td>3</td>
+          <td>{{ response.response_3_unique }}</td>
+          {% else %}
+          <td>{{ response.response_3 }}</td>
+          {% endif %}
+          <td>{{ response.time_3 }}</td>
+          <td>{{ response.total_time }}</td>
+        </tr>
+        <tr>
+          <td>{{ response.created }}</td>
+          <td>{{ response.id }}</td>
+          {% if task == "Block Design" %}
+          <td>4</td>
+          <td>{{ response.response_4_unique }}</td>
+          {% else %}
+          <td>{{ response.response_4 }}</td>
+          {% endif %}
+          <td>{{ response.time_4 }}</td>
+          <td>{{ response.total_time }}</td>
+        </tr>
+        <tr>
+          <td>{{ response.created }}</td>
+          <td>{{ response.id }}</td>
+          {% if task == "Block Design" %}
+          <td>5</td>
+          <td>{{ response.response_5_unique }}</td>
+          {% else %}
+          <td>{{ response.response_5 }}</td>
+          {% endif %}
+          <td>{{ response.time_5 }}</td>
+          <td>{{ response.total_time }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div><br /><br />
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+  </head>
+  <body>
+    <div>
+      <h3>Subject ID: {{ sub.subject_id }}</h3>
+    </div><br /><br />
+    <div>
+      <table>
+        <tr>
+          <th>Tasks</th>
+        </tr>
+        <tr>
+          <td><a href="{% url 'divergent_results' sub.subject_id %}">View Divergent Results</a></td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'convergent_results' sub.subject_id %}">View Convergent Results</a></td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'recombination_results' sub.subject_id %}">View Recombination Results</a></td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'block_design_results' sub.subject_id %}">View Block Design Results</a></td>
+        </tr>
+      </table>
+    </div><br /><br />
+  </body>
+</html>

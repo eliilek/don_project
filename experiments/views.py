@@ -14,16 +14,85 @@ TRIAL_NUMBER = 5
 def lander(request):
     return render(request, 'lander.html')
 
+def results(request):
+    if not 'user_id' in request.session.keys():
+        return redirect("/")
+    try:
+        sub = Subject.objects.get(subject_id=request.session['user_id'])
+    except:
+        return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
+    sub_responses = FullResponseSet.objects.filter(subject=sub)
+    return render(request, 'results.html', {'sub':sub})
+
+def divergent_results(request, id):
+    try:
+        sub = Subject.objects.get(subject_id=id)
+    except:
+        return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
+    fullSets = FullResponseSet.objects.filter(subject=sub)
+    divergentSets = []
+    for fullSet in fullSets:
+        divergentSets.append(DivergentResponseSet.objects.filter(response_set=fullSet))
+    divergentResponses = []
+    for divergentSet in divergentSets:
+        divergentResponses.append(DivergentResponse.objects.filter(divergent_set=divergentSet))
+
+    return render(request, 'task_results.html', {'sub':sub, 'responses':divergentResponses, 'task':"Divergent"})
+
+def convergent_results(request, id):
+    try:
+        sub = Subject.objects.get(subject_id=id)
+    except:
+        return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
+    fullSets = FullResponseSet.objects.filter(subject=sub)
+    convergentSets = []
+    for fullSet in fullSets:
+        convergentSets.append(ConvergentResponseSet.objects.filter(response_set=fullSet))
+    convergentResponses = []
+    for convergentSet in convergentSets:
+        convergentResponses.append(ConvergentResponse.objects.filter(convergent_set=convergentSet))
+
+    return render(request, 'task_results.html', {'sub':sub, 'responses':convergentResponses, 'task':"Convergent"})
+
+def recombination_results(request, id):
+    try:
+        sub = Subject.objects.get(subject_id=id)
+    except:
+        return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
+    fullSets = FullResponseSet.objects.filter(subject=sub)
+    recombinationSets = []
+    for fullSet in fullSets:
+        recombinationSets.append(RecombinationResponseSet.objects.filter(response_set=fullSet))
+    recombinationResponses = []
+    for recombinationSet in recombinationSets:
+        recombinationResponses.append(RecombinationResponse.objects.filter(recombination_set=recombinationSet))
+
+    return render(request, 'task_results.html', {'sub':sub, 'responses':recombinationResponses, 'task':"Recombination"})
+
+def block_design_results(request, id):
+    try:
+        sub = Subject.objects.get(subject_id=id)
+    except:
+        return HttpResponse("I couldn't find the subject you're looking for.<br>Please return to the landing page and enter an ID.")
+    fullSets = FullResponseSet.objects.filter(subject=sub)
+    blockDesignSets = []
+    for fullSet in fullSets:
+        blockDesignSets.append(BlockDesignResponseSet.objects.filter(response_set=fullSet))
+    blockDesignResponses = []
+    for blockDesignSet in blockDesignSets:
+        blockDesignResponses.append(BlockDesignResponse.objects.filter(block_design_set=blockDesignSet))
+
+    return render(request, 'task_results.html', {'sub':sub, 'responses':blockDesignResponses, 'task':"Block Design"})
+
 def session(request):
     if request.method != "POST" or not 'user_id' in request.POST.keys():
-        if "user" in request.session.keys():
-            return redirect(request.session['user'])
-        else:
-            return redirect("/")
+        return redirect("/")
     request.session['user_id'] = request.POST['user_id']
     try:
         sub = Subject.objects.get(subject_id=request.POST['user_id'])
-        return redirect(sub)
+        if request.POST['Action'] == "Start Session":
+            return redirect(sub)
+        return redirect('results')
     except:
         return HttpResponse("There is no user with the ID you entered.<br>Please ensure your admin has created your Subject ID.")
 
