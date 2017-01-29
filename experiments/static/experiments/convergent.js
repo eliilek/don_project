@@ -2,6 +2,11 @@ function proceed(){
   var trial_end_time = Date.now();
   responses[index]['total_time'] = trial_end_time - trial_start_time;
   responses[index]['stimulus'] = stimuli[index].id;
+  while (response_index < 6){
+    responses[index]['response_' + response_index] = "";
+    responses[index]['time_' + response_index] = 0;
+    response_index += 1;
+  }
   index += 1;
   if (index >= Object.keys(stimuli).length){
     //ajax back the data, display generic message, button submits back to master views
