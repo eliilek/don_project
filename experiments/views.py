@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.forms.models import model_to_dict
 import json
 import string
+import datetime
 
 TRIAL_NUMBER = 5
 
@@ -32,11 +33,15 @@ def divergent_results(request, userid):
     fullSets = FullResponseSet.objects.filter(subject=sub)
     divergentSets = []
     for fullSet in fullSets:
-        divergentSets.append(DivergentResponseSet.objects.filter(response_set=fullSet))
+        divergentSets += (thing for thing in DivergentResponseSet.objects.filter(response_set=fullSet))
     divergentResponses = []
     for divergentSet in divergentSets:
-        divergentResponses.append(DivergentResponse.objects.filter(divergent_set=divergentSet))
-
+        tempResponses = DivergentResponse.objects.filter(divergent_set=divergentSet)
+        if len(tempResponses) > 0:
+            for response in tempResponses:
+                tempObject = model_to_dict(response)
+                tempObject['created'] = response.divergent_set.response_set.created
+                divergentResponses.append(tempObject)
     return render(request, 'task_results.html', {'sub':sub, 'responses':divergentResponses, 'task':"Divergent"})
 
 def convergent_results(request, userid):
@@ -47,11 +52,15 @@ def convergent_results(request, userid):
     fullSets = FullResponseSet.objects.filter(subject=sub)
     convergentSets = []
     for fullSet in fullSets:
-        convergentSets.append(ConvergentResponseSet.objects.filter(response_set=fullSet))
+        convergentSets += (thing for thing in ConvergentResponseSet.objects.filter(response_set=fullSet))
     convergentResponses = []
     for convergentSet in convergentSets:
-        convergentResponses.append(ConvergentResponse.objects.filter(convergent_set=convergentSet))
-
+        tempResponses = ConvergentResponse.objects.filter(convergent_set=convergentSet)
+        if len(tempResponses) > 0:
+            for response in tempResponses:
+                tempObject = model_to_dict(response)
+                tempObject['created'] = response.convergent_set.response_set.created
+                convergentResponses.append(tempObject)
     return render(request, 'task_results.html', {'sub':sub, 'responses':convergentResponses, 'task':"Convergent"})
 
 def recombination_results(request, userid):
@@ -62,11 +71,15 @@ def recombination_results(request, userid):
     fullSets = FullResponseSet.objects.filter(subject=sub)
     recombinationSets = []
     for fullSet in fullSets:
-        recombinationSets.append(RecombinationResponseSet.objects.filter(response_set=fullSet))
+        recombinationSets += (thing for thing in RecombinationResponseSet.objects.filter(response_set=fullSet))
     recombinationResponses = []
     for recombinationSet in recombinationSets:
-        recombinationResponses.append(RecombinationResponse.objects.filter(recombination_set=recombinationSet))
-
+        tempResponses = RecombinationResponse.objects.filter(recombination_set=recombinationSet)
+        if len(tempResponses) > 0:
+            for response in tempResponses:
+                tempObject = model_to_dict(response)
+                tempObject['created'] = response.recombination_set.response_set.created
+                recombinationResponses.append(tempObject)
     return render(request, 'task_results.html', {'sub':sub, 'responses':recombinationResponses, 'task':"Recombination"})
 
 def block_design_results(request, userid):
@@ -77,11 +90,15 @@ def block_design_results(request, userid):
     fullSets = FullResponseSet.objects.filter(subject=sub)
     blockDesignSets = []
     for fullSet in fullSets:
-        blockDesignSets.append(BlockDesignResponseSet.objects.filter(response_set=fullSet))
+        blockDesignSets += (thing for thing in BlockDesignResponseSet.objects.filter(response_set=fullSet))
     blockDesignResponses = []
     for blockDesignSet in blockDesignSets:
-        blockDesignResponses.append(BlockDesignResponse.objects.filter(block_design_set=blockDesignSet))
-
+        tempResponses = BlockDesignResponse.objects.filter(block_design_set=blockDesignSet)
+        if len(tempResponses) > 0:
+            for response in tempResponses:
+                tempObject = model_to_dict(response)
+                tempObject['created'] = response.block_design_set.response_set.created
+                blockDesignResponses.append(tempObject)
     return render(request, 'task_results.html', {'sub':sub, 'responses':blockDesignResponses, 'task':"Block Design"})
 
 def session(request):
@@ -126,25 +143,26 @@ def divergent(request, sub, last):
 def report_divergent(request):
     if request.method != "POST" or not "response_set" in request.session.keys():
         return HttpResponse("Oops! You got to this link by accident. Please return to the home page.")
+
     json_object = json.loads(request.body)
     for response in json_object:
         try:
-            block = DivergentResponseSet(response_set=request.session['response_set'])
+            block = DivergentResponseSet(response_set=FullResponseSet.objects.get(id=request.session['response_set']))
             block.save()
             divergent_response = DivergentResponse(
                 divergent_set = block,
-                response_1 = response['response_1'],
-                time_1 = response['time_1'],
-                response_2 = response['response_2'],
-                time_2 = response['time_2'],
-                response_3 = response['response_3'],
-                time_3 = response['time_3'],
-                response_4 = response['response_4'],
-                time_4 = response['time_4'],
-                response_5 = response['response_5'],
-                time_5 = response['time_5'],
-                total_time = response['total_time'],
-                stimulus = Stimulus.objects.get(id=response['stimulus'])
+                response_1 = json_object[response]['response_1'],
+                time_1 = datetime.timedelta(seconds=json_object[response]['time_1']/1000.0),
+                response_2 = json_object[response]['response_2'],
+                time_2 = datetime.timedelta(seconds=json_object[response]['time_2']/1000.0),
+                response_3 = json_object[response]['response_3'],
+                time_3 = datetime.timedelta(seconds=json_object[response]['time_3']/1000.0),
+                response_4 = json_object[response]['response_4'],
+                time_4 = datetime.timedelta(seconds=json_object[response]['time_4']/1000.0),
+                response_5 = json_object[response]['response_5'],
+                time_5 = datetime.timedelta(seconds=json_object[response]['time_5']/1000.0),
+                total_time = datetime.timedelta(seconds=json_object[response]['total_time']/1000.0),
+                stimulus = Stimulus.objects.get(id=json_object[response]['stimulus'])
             )
             divergent_response.save()
         except:
@@ -176,22 +194,22 @@ def report_convergent(request):
     json_object = json.loads(request.body)
     for response in json_object:
         try:
-            block = ConvergentResponseSet(response_set=request.session['response_set'])
+            block = ConvergentResponseSet(response_set=FullResponseSet.objects.get(id=request.session['response_set']))
             block.save()
             convergent_response = ConvergentResponse(
                 convergent_set = block,
-                response_1 = response['response_1'],
-                time_1 = response['time_1'],
-                response_2 = response['response_2'],
-                time_2 = response['time_2'],
-                response_3 = response['response_3'],
-                time_3 = response['time_3'],
-                response_4 = response['response_4'],
-                time_4 = response['time_4'],
-                response_5 = response['response_5'],
-                time_5 = response['time_5'],
-                total_time = response['total_time'],
-                stimulus = Stimulus.objects.get(id=response['stimulus'])
+                response_1 = json_object[response]['response_1'],
+                time_1 = datetime.timedelta(seconds=json_object[response]['time_1']/1000.0),
+                response_2 = json_object[response]['response_2'],
+                time_2 = datetime.timedelta(seconds=json_object[response]['time_2']/1000.0),
+                response_3 = json_object[response]['response_3'],
+                time_3 = datetime.timedelta(seconds=json_object[response]['time_3']/1000.0),
+                response_4 = json_object[response]['response_4'],
+                time_4 = datetime.timedelta(seconds=json_object[response]['time_4']/1000.0),
+                response_5 = json_object[response]['response_5'],
+                time_5 = datetime.timedelta(seconds=json_object[response]['time_5']/1000.0),
+                total_time = datetime.timedelta(seconds=json_object[response]['total_time']/1000.0),
+                stimulus = Stimulus.objects.get(id=json_object[response]['stimulus'])
             )
             convergent_response.save()
         except:
@@ -220,22 +238,22 @@ def report_recombination(request):
     json_object = json.loads(request.body)
     for response in json_object:
         try:
-            block = RecombinationResponseSet(response_set=request.session['response_set'])
+            block = RecombinationResponseSet(response_set=FullResponseSet.objects.get(id=request.session['response_set']))
             block.save()
             recombination_response = RecombinationResponse(
                 recombination_set = block,
-                response_1 = response['response_1'],
-                time_1 = response['time_1'],
-                response_2 = response['response_2'],
-                time_2 = response['time_2'],
-                response_3 = response['response_3'],
-                time_3 = response['time_3'],
-                response_4 = response['response_4'],
-                time_4 = response['time_4'],
-                response_5 = response['response_5'],
-                time_5 = response['time_5'],
-                total_time = response['total_time'],
-                stimulus = Stimulus.objects.get(id=response['stimulus'])
+                response_1 = json_object[response]['response_1'],
+                time_1 = datetime.timedelta(seconds=json_object[response]['time_1']/1000.0),
+                response_2 = json_object[response]['response_2'],
+                time_2 = datetime.timedelta(seconds=json_object[response]['time_2']/1000.0),
+                response_3 = json_object[response]['response_3'],
+                time_3 = datetime.timedelta(seconds=json_object[response]['time_3']/1000.0),
+                response_4 = json_object[response]['response_4'],
+                time_4 = datetime.timedelta(seconds=json_object[response]['time_4']/1000.0),
+                response_5 = json_object[response]['response_5'],
+                time_5 = datetime.timedelta(seconds=json_object[response]['time_5']/1000.0),
+                total_time = datetime.timedelta(seconds=json_object[response]['total_time']/1000.0),
+                stimulus = Stimulus.objects.get(id=json_object[response]['stimulus'])
             )
             recombination_response.save()
         except:
@@ -268,22 +286,22 @@ def report_block(request):
     json_object = json.loads(request.body)
     for response in json_object:
         try:
-            block = BlockDesignResponseSet(response_set=request.session['response_set'])
+            block = BlockDesignResponseSet(response_set=FullResponseSet.objects.get(id=request.session['response_set']))
             block.save()
             block_design_response = BlockDesignResponse(
                 block_design_set = block,
-                response_1_unique = response['response_1_unique'],
-                time_1 = response['time_1'],
-                response_2_unique = response['response_2_unique'],
-                time_2 = response['time_2'],
-                response_3_unique = response['response_3_unique'],
-                time_3 = response['time_3'],
-                response_4_unique = response['response_4_unique'],
-                time_4 = response['time_4'],
-                response_5_unique = response['response_5_unique'],
-                time_5 = response['time_5'],
-                total_time = response['total_time'],
-                stimulus = Stimulus.objects.get(id=response['stimulus'])
+                response_1_unique = json_object[response]['response_1_unique'],
+                time_1 = datetime.timedelta(seconds=json_object[response]['time_1']/1000.0),
+                response_2_unique = json_object[response]['response_2_unique'],
+                time_2 = datetime.timedelta(seconds=json_object[response]['time_2']/1000.0),
+                response_3_unique = json_object[response]['response_3_unique'],
+                time_3 = datetime.timedelta(seconds=json_object[response]['time_3']/1000.0),
+                response_4_unique = json_object[response]['response_4_unique'],
+                time_4 = datetime.timedelta(seconds=json_object[response]['time_4']/1000.0),
+                response_5_unique = json_object[response]['response_5_unique'],
+                time_5 = datetime.timedelta(seconds=json_object[response]['time_5']/1000.0),
+                total_time = datetime.timedelta(seconds=json_object[response]['total_time']/1000.0),
+                stimulus = Stimulus.objects.get(id=json_object[response]['stimulus'])
             )
             block_design_response.save()
         except:

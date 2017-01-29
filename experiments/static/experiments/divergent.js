@@ -1,6 +1,6 @@
 function record_response(text_box){
   var response_end_time = Date.now();
-  responses[index]['time_' + response_index] = response_start_time - response_end_time
+  responses[index]['time_' + response_index] = response_end_time - response_start_time
   responses[index]['response_' + response_index] = $(text_box).val()
   response_index += 1;
   $(text_box).prop('disabled', true);
@@ -45,7 +45,7 @@ $(document).ready(function(){
 
 function proceed(){
   var trial_end_time = Date.now()
-  responses[index]['total_time'] = trial_start_time - trial_end_time;
+  responses[index]['total_time'] = trial_end_time - trial_start_time;
   responses[index]['stimulus'] = stimuli[index].id;
   index += 1;
   if (index >= Object.keys(stimuli).length){
